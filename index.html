@@ -94,15 +94,12 @@
             let updatedFirstTime = initialTimeFormatted.subtract(1, "years");
             console.log("First Time: " + updatedFirstTime);
 
-    //Converting first time from milliseconds to minutes
-            let minutesFirstTime = moment((updatedFirstTime), "minutes");
-
     //Current time
             let currentTime = moment();
             console.log("Current Time: " + currentTime);
 
-    //Difference between current time and first train
-            let timeDiff = moment().diff(minutesFirstTime)
+    //Difference between current time and first train, 
+            let timeDiff = moment().diff(moment(updatedFirstTime), "minutes")
             console.log("Difference Between Time: " + timeDiff);
 
     //How many times the train departed in time difference
