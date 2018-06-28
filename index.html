@@ -80,26 +80,59 @@
   firebase.initializeApp(config);
         const DATABASE = firebase.database();
 
-
+    //When clicking submit
         $('#submit').on('click', function () {
             event.preventDefault();
-
+    //Define submitted values
             let name = $('#train-name').val();
             let destination = $('#destination').val();
             let time = $('#train-time').val();
             let frequency = $('#frequency').val();
 
-        
+    //Ensuring time happens before now
+            let initialTimeFormatted = moment(time, "HH:mm")
+            let updatedFirstTime = initialTimeFormatted.subtract(1, "years");
+            console.log("First Time: " + updatedFirstTime);
+
+    //Converting first time from milliseconds to minutes
+            let minutesFirstTime = moment((updatedFirstTime), "minutes");
+
+    //Current time
+            let currentTime = moment();
+            console.log("Current Time: " + currentTime);
+
+    //Difference between current time and first train
+            let timeDiff = moment().diff(minutesFirstTime)
+            console.log("Difference Between Time: " + timeDiff);
+
+    //How many times the train departed in time difference
+            let remainder = timeDiff % frequency;
+            console.log("Frequency: " + frequency);
+            console.log("Remainder: " + remainder);
+
+    //Time until next train
+            let untilNext = frequency - remainder;
+            console.log("Minutes Until Next Train: " + untilNext);
+
+            let nextTrain = moment().add(untilNext, "minutes")
+
+    //Format to AM/PM time
+            let trainTime = nextTrain.format("hh:mm a");
+
+            console.log("Next Train: " + trainTime);
+
+    //Pushing data to firebase
             DATABASE.ref().push({
                 name: name,
                 destination: destination,
-                time: time,
                 frequency: frequency,
-
+                trainTime: trainTime,
+                untilNext: untilNext
             }); 
 
         });
 
+    //Creating rows for each train information as data is added to firebase
         function pullData() {
             DATABASE.ref().on('child_added', function (snapshot) {
                 let child = snapshot.val();
@@ -108,13 +141,12 @@
                     `
                         <th scope="row">${child.name}</th>
                         <td>${child.destination}</td>
-                        <td>${child.time}</td>
                         <td>${child.frequency}</td>
+                        <td>${child.trainTime}</td>
+                        <td>${child.untilNext}</td>
 
                     `
                 );
-
-                newRow.attr('data-id', snapshot.key);
 
                 $('#table-data').append(newRow);
             });
